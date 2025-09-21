@@ -48,12 +48,13 @@
     <!-- About Section -->
     <section id="about" class="about-section">
         <div class="container">
-            <h2 class="section-title">Welcome to Rise.Inspire.Repeat!</h2>
+            <h2 class="section-title">About Me</h2>
             <div class="about-content">
                 <div class="about-text">
-                    <p>I’m Sushmita Das Gupta, a Life and Mindset Transformation Coach, dedicated to helping you unlock your true potential. - <strong>Rise.Inspire.Repeat</strong>.</p>
+                    <p>Welcome to Rise.Inspire.Repeat!</p>
+                    <p>I'm Sushmita Das Gupta, a Life and Mindset Transformation Coach, dedicated to helping you unlock your true potential. - Rise.Inspire.Repeat.</p>
                     <p>This platform is designed to empower you with practical tools and powerful techniques rooted in manifestation and the law of attraction. My mission is to inspire you to take meaningful action toward your goals, dreams, and desires.</p>
-                    <p>I believe that small shifts in your mindset can create extraordinary results. Through my guidance, you’ll learn how to embrace positive changes, break limiting patterns, and step into a life filled with purpose, abundance, and joy.</p>
+                    <p>I believe that small shifts in your mindset can create extraordinary results. Through my guidance, you'll learn how to embrace positive changes, break limiting patterns, and step into a life filled with purpose, abundance, and joy.</p>
                 </div>
             </div>
         </div>
@@ -117,14 +118,56 @@
         <div class="container">
             <h2 class="section-title">Contact</h2>
             <div class="contact-content">
-                <p class="contact-description">For all inquiries, collaboration, or to begin your transformation journey, contact via email through this YouTube channel link:</p>
-                <div class="contact-buttons">
-                    <a href="https://www.youtube.com/@lifecoachsush" target="_blank" class="btn btn--primary contact-btn">
-                        Contact via YouTube Channel
-                    </a>
-                    <a href="https://instagram.com/lifecoach_sush" target="_blank" class="btn btn--secondary contact-btn">
-                        Follow on Instagram
-                    </a>
+                <p class="contact-description">For all inquiries, collaboration, or to begin your transformation journey, you can use the form below or contact via email through this YouTube channel link:</p>
+                
+                <!-- Contact Form -->
+                <form id="contact-form" class="contact-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="name" class="form-label">Full Name *</label>
+                            <input type="text" id="name" name="name" class="form-control" required>
+                            <div class="error-message" id="name-error"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="email" class="form-label">Email Address *</label>
+                            <input type="email" id="email" name="email" class="form-control" required>
+                            <div class="error-message" id="email-error"></div>
+                        </div>
+                        <div class="form-group form-group-full">
+                            <label for="subject" class="form-label">Subject *</label>
+                            <input type="text" id="subject" name="subject" class="form-control" required>
+                            <div class="error-message" id="subject-error"></div>
+                        </div>
+                        <div class="form-group form-group-full">
+                            <label for="message" class="form-label">Message *</label>
+                            <textarea id="message" name="message" class="form-control" rows="6" required></textarea>
+                            <div class="error-message" id="message-error"></div>
+                        </div>
+                    </div>
+                    <div class="form-submit">
+                        <button type="submit" class="btn btn--primary contact-form-btn">Send Message</button>
+                    </div>
+                </form>
+
+                <!-- Success/Error Messages -->
+                <div id="form-success" class="form-message success-message hidden">
+                    <p>✅ Thank you for your message! Your email client will open to send the message.</p>
+                </div>
+                <div id="form-error" class="form-message error-message-box hidden">
+                    <p>❌ Please fill in all required fields correctly.</p>
+                </div>
+
+                <!-- Alternative Contact Methods -->
+                <div class="contact-alternatives">
+                    <p class="alternative-text">Alternative contact methods:</p>
+                    <div class="contact-buttons">
+                        <a href="https://www.youtube.com/@lifecoachsush" target="_blank" class="btn btn--primary contact-btn">
+                            Contact via YouTube Channel
+                        </a>
+                        <a href="https://instagram.com/lifecoach_sush" target="_blank" class="btn btn--secondary contact-btn">
+                            Follow on Instagram
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
