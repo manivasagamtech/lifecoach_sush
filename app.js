@@ -126,6 +126,174 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Contact Form Functionality
+    const contactForm = document.getElementById('contact-form');
+    const formSuccess = document.getElementById('form-success');
+    const formError = document.getElementById('form-error');
+
+    // Form validation functions
+    function validateEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+
+    function validateField(field, value) {
+        const errorElement = document.getElementById(`${field}-error`);
+        let isValid = true;
+        let errorMessage = '';
+
+        // Ensure value is a string and trim it
+        const trimmedValue = String(value || '').trim();
+
+        switch (field) {
+            case 'name':
+                if (!trimmedValue) {
+                    errorMessage = 'Full name is required';
+                    isValid = false;
+                } else if (trimmedValue.length < 2) {
+                    errorMessage = 'Name must be at least 2 characters';
+                    isValid = false;
+                }
+                break;
+            case 'email':
+                if (!trimmedValue) {
+                    errorMessage = 'Email address is required';
+                    isValid = false;
+                } else if (!validateEmail(trimmedValue)) {
+                    errorMessage = 'Please enter a valid email address';
+                    isValid = false;
+                }
+                break;
+            case 'subject':
+                if (!trimmedValue) {
+                    errorMessage = 'Subject is required';
+                    isValid = false;
+                } else if (trimmedValue.length < 3) {
+                    errorMessage = 'Subject must be at least 3 characters';
+                    isValid = false;
+                }
+                break;
+            case 'message':
+                if (!trimmedValue) {
+                    errorMessage = 'Message is required';
+                    isValid = false;
+                } else if (trimmedValue.length < 10) {
+                    errorMessage = 'Message must be at least 10 characters';
+                    isValid = false;
+                }
+                break;
+        }
+
+        if (errorElement) {
+            errorElement.textContent = errorMessage;
+            errorElement.classList.toggle('visible', !isValid);
+        }
+
+        return isValid;
+    }
+
+    // Real-time validation
+    if (contactForm) {
+        const formFields = ['name', 'email', 'subject', 'message'];
+        
+        formFields.forEach(fieldName => {
+            const field = document.getElementById(fieldName);
+            if (field) {
+                field.addEventListener('blur', function() {
+                    validateField(fieldName, this.value);
+                });
+                
+                field.addEventListener('input', function() {
+                    // Clear error when user starts typing
+                    const errorElement = document.getElementById(`${fieldName}-error`);
+                    if (errorElement && errorElement.classList.contains('visible')) {
+                        errorElement.classList.remove('visible');
+                    }
+                });
+            }
+        });
+
+        // Form submission
+        contactForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form data directly from form elements
+            const nameField = document.getElementById('name');
+            const emailField = document.getElementById('email');
+            const subjectField = document.getElementById('subject');
+            const messageField = document.getElementById('message');
+
+            const name = nameField ? nameField.value : '';
+            const email = emailField ? emailField.value : '';
+            const subject = subjectField ? subjectField.value : '';
+            const message = messageField ? messageField.value : '';
+
+            // Validate all fields
+            const isNameValid = validateField('name', name);
+            const isEmailValid = validateField('email', email);
+            const isSubjectValid = validateField('subject', subject);
+            const isMessageValid = validateField('message', message);
+
+            const isFormValid = isNameValid && isEmailValid && isSubjectValid && isMessageValid;
+
+            // Hide previous messages
+            formSuccess.classList.add('hidden');
+            formError.classList.add('hidden');
+
+            if (isFormValid) {
+                // Create mailto link
+                const mailtoBody = encodeURIComponent(
+                    `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`
+                );
+                const mailtoSubject = encodeURIComponent(`Contact Form: ${subject}`);
+                const mailtoLink = `mailto:lifecoach.sush@gmail.com?subject=${mailtoSubject}&body=${mailtoBody}`;
+
+                // Open email client
+                try {
+                    // Create a temporary link element to trigger mailto
+                    const tempLink = document.createElement('a');
+                    tempLink.href = mailtoLink;
+                    tempLink.target = '_blank';
+                    tempLink.rel = 'noopener noreferrer';
+                    document.body.appendChild(tempLink);
+                    tempLink.click();
+                    document.body.removeChild(tempLink);
+                    
+                    // Show success message
+                    formSuccess.classList.remove('hidden');
+                    
+                    // Reset form after short delay
+                    setTimeout(() => {
+                        contactForm.reset();
+                        formSuccess.classList.add('hidden');
+                        // Clear any visible error messages
+                        document.querySelectorAll('.error-message.visible').forEach(error => {
+                            error.classList.remove('visible');
+                        });
+                    }, 5000);
+                    
+                } catch (error) {
+                    console.error('Error opening email client:', error);
+                    formError.classList.remove('hidden');
+                }
+            } else {
+                // Show error message
+                formError.classList.remove('hidden');
+                
+                // Focus on first invalid field
+                const firstErrorField = document.querySelector('.error-message.visible');
+                if (firstErrorField) {
+                    const fieldId = firstErrorField.id.replace('-error', '');
+                    const field = document.getElementById(fieldId);
+                    if (field) {
+                        field.focus();
+                        field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+            }
+        });
+    }
+
     // Scroll event listener with throttling
     let ticking = false;
     
@@ -216,25 +384,53 @@ document.addEventListener('DOMContentLoaded', function() {
 
     optimizeVideoLoading();
 
-    // Ensure external links open in new tabs
+    // Ensure external links open in new tabs - FIXED VERSION
     function setupExternalLinks() {
+        // Target all external links more specifically
         const externalLinks = document.querySelectorAll('a[href^="http"], a[href^="https://"]');
         
         externalLinks.forEach(link => {
             // Ensure target="_blank" is set
-            link.setAttribute('target', '_blank');
+            if (!link.hasAttribute('target') || link.getAttribute('target') !== '_blank') {
+                link.setAttribute('target', '_blank');
+            }
             // Add security attributes
             link.setAttribute('rel', 'noopener noreferrer');
             
-            // Remove any event preventDefault that might interfere
+            // Add click handler to ensure it works
             link.addEventListener('click', function(e) {
-                // Let the browser handle the default link behavior
-                // Don't preventDefault for external links
+                // For external links, let the browser handle normally
+                // but ensure attributes are set
+                if (!this.hasAttribute('target')) {
+                    this.setAttribute('target', '_blank');
+                }
+                if (!this.hasAttribute('rel')) {
+                    this.setAttribute('rel', 'noopener noreferrer');
+                }
+            });
+        });
+
+        // Also handle Instagram and YouTube links specifically
+        const instagramLinks = document.querySelectorAll('a[href*="instagram.com"]');
+        const youtubeLinks = document.querySelectorAll('a[href*="youtube.com"]');
+        
+        [...instagramLinks, ...youtubeLinks].forEach(link => {
+            link.setAttribute('target', '_blank');
+            link.setAttribute('rel', 'noopener noreferrer');
+            
+            // Add visual feedback on click
+            link.addEventListener('click', function() {
+                this.style.opacity = '0.7';
+                setTimeout(() => {
+                    this.style.opacity = '1';
+                }, 200);
             });
         });
     }
 
+    // Call this after DOM is loaded and again after a short delay
     setupExternalLinks();
+    setTimeout(setupExternalLinks, 100);
 
     // Contact button hover effects
     function addContactButtonEffects() {
@@ -259,6 +455,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (event.key === 'Escape' && navMenu && navMenu.classList.contains('active')) {
             navMenu.classList.remove('active');
             navToggle.classList.remove('active');
+        }
+
+        // Handle form submission with Enter key (for buttons)
+        if (event.key === 'Enter' && event.target.type === 'submit') {
+            event.target.click();
         }
     });
 
@@ -286,8 +487,65 @@ document.addEventListener('DOMContentLoaded', function() {
 
     addActiveNavStyles();
 
+    // Form accessibility improvements
+    function improveFormAccessibility() {
+        const formInputs = document.querySelectorAll('.form-control');
+        
+        formInputs.forEach(input => {
+            // Add ARIA attributes
+            const label = document.querySelector(`label[for="${input.id}"]`);
+            if (label) {
+                input.setAttribute('aria-labelledby', label.id || `${input.id}-label`);
+                if (!label.id) {
+                    label.id = `${input.id}-label`;
+                }
+            }
+
+            // Add aria-describedby for error messages
+            const errorElement = document.getElementById(`${input.name}-error`);
+            if (errorElement) {
+                input.setAttribute('aria-describedby', errorElement.id);
+                errorElement.setAttribute('aria-live', 'polite');
+            }
+        });
+    }
+
+    improveFormAccessibility();
+
+    // Enhanced form user experience
+    function enhanceFormUX() {
+        const submitButton = document.querySelector('.contact-form-btn');
+        const form = document.getElementById('contact-form');
+        
+        if (form && submitButton) {
+            // Add loading state during submission
+            form.addEventListener('submit', function() {
+                submitButton.disabled = true;
+                const originalText = submitButton.textContent;
+                submitButton.textContent = 'Opening Email...';
+                
+                setTimeout(() => {
+                    submitButton.disabled = false;
+                    submitButton.textContent = originalText;
+                }, 2000);
+            });
+
+            // Auto-resize textarea
+            const textarea = document.getElementById('message');
+            if (textarea) {
+                textarea.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = Math.max(120, this.scrollHeight) + 'px';
+                });
+            }
+        }
+    }
+
+    enhanceFormUX();
+
     // Debug information
     console.log('Sushmita Das Gupta - Life & Mindset Transformation Coach website loaded successfully!');
+    console.log('Contact form functionality enabled with improved email submission');
     
     // Log sections found for debugging
     const sections = document.querySelectorAll('section[id]');
@@ -296,4 +554,16 @@ document.addEventListener('DOMContentLoaded', function() {
     // Log navigation links for debugging
     const navLinkHrefs = Array.from(navLinks).map(link => link.getAttribute('href'));
     console.log('Navigation links:', navLinkHrefs);
+
+    // Log form status
+    if (contactForm) {
+        console.log('Contact form initialized successfully with improved validation');
+    }
+
+    // Log external links
+    const externalLinks = document.querySelectorAll('a[href^="http"], a[href^="https://"]');
+    console.log('External links found:', externalLinks.length);
+    externalLinks.forEach(link => {
+        console.log('External link:', link.href, 'Target:', link.target, 'Rel:', link.rel);
+    });
 });
